@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YouTube Data API Example</title>
+  </head>
+  <body>
+    <h2>YouTube Channel Info</h2>
+    <div id="output"></div>
+
+    <script>
+      // Replace with your API key
+      const API_KEY = "";
+
+      // Replace with the channel ID (example: Google Developers channel)
+      const CHANNEL_ID = "UC-lHJZR3Gqxm24_Vd_AJ5Yw";
+
+      // API endpoint
+      const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
+
+      // Fetch channel data
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+
+          if (data.items && data.items.length > 0) {
+            const channel = data.items[0];
+            const snippet = channel.snippet;
+            const stats = channel.statistics;
+
+            document.getElementById("output").innerHTML = `
+            <h3>${snippet.title}</h3>
+            <p>${snippet.description}</p>
+            <p><b>Subscribers:</b> ${stats.subscriberCount}</p>
+            <p><b>Views:</b> ${stats.viewCount}</p>
+            <p><b>Videos:</b> ${stats.videoCount}</p>
+            <img src="${snippet.thumbnails.default.url}" alt="Channel Thumbnail" />
+          `;
+          } else {
+            document.getElementById("output").innerText = "Channel not found.";
+          }
+        })
+        .catch((error) => console.error("Error fetching channel data:", error));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YouTube Analytics Example</title>
+    <script src="https://apis.google.com/js/api.js"></script>
+  </head>
+  <body>
+    <h2>YouTube Analytics</h2>
+    <button id="authorize">Authorize</button>
+    <pre id="output"></pre>
+
+    <script>
+      const CLIENT_ID = "YOUR_CLIENT_ID.apps.googleusercontent.com";
+      const API_KEY = "AIzaSyCCdwFFcvYFbHeHaTCIPWHMIONIQ73F5NE";
+      const SCOPES =
+        "https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/youtube.readonly";
+
+      // Load the API client
+      function loadClient() {
+        gapi.client.setApiKey(API_KEY);
+        return gapi.client.load(
+          "https://youtubeanalytics.googleapis.com/$discovery/rest"
+        );
+      }
+
+      // Authorize user
+      function authenticate() {
+        return gapi.auth2
+          .getAuthInstance()
+          .signIn({ scope: SCOPES })
+          .then(() => console.log("Sign-in successful"))
+          .catch((err) => console.error("Error signing in", err));
+      }
+
+      // Get analytics data
+      function getAnalytics() {
+        gapi.client.youtubeAnalytics.reports
+          .query({
+            ids: "channel==MINE", // logged-in user's channel
+            startDate: "2024-09-01",
+            endDate: "2024-09-30",
+            metrics: "views,estimatedMinutesWatched,averageViewDuration",
+            dimensions: "day",
+            sort: "day",
+          })
+          .then(
+            (response) => {
+              document.getElementById("output").textContent = JSON.stringify(
+                response.result,
+                null,
+                2
+              );
+            },
+            (err) => console.error("Execute error", err)
+          );
+      }
+
+      // Load auth2 library
+      gapi.load("client:auth2", () => {
+        gapi.auth2.init({ client_id: CLIENT_ID });
+        document.getElementById("authorize").onclick = () => {
+          authenticate().then(loadClient).then(getAnalytics);
+        };
+      });
+    </script>
+  </body>
+</html>
